@@ -13,9 +13,8 @@ The below documentation demonstrates how to retrieve data from the AdMob API usi
   6. Once the API is enabled, within GCP navigate to APIs & Services \> Credentials
   7. Generate new OAuth 2.0 credentials
     
-    * Allow GDS (https://datastudio.google.com) and GAS (https://script.google.com) Javascript origins
-    * Allow your GAS project(s) as authorized redirect URI(s) (https://script.google.com/macros/d/**your-project**/usercallback and (https://script.google.com/macros/s/**your-project**/exec)
-
+    - Allow GDS (https://datastudio.google.com) and GAS (https://script.google.com) Javascript origins
+    - Allow your GAS project(s) as authorized redirect URI(s) (https://script.google.com/macros/d/**your-project**/usercallback and (https://script.google.com/macros/s/**your-project**/exec)
   8. Once the credentials are created, input client ID and client secret information from the OAuth credentials generated
   9. Within your GAS project, navigate to the *view* menu, select 'show manifest file'
   10. Update the manifest file with JSON information from *GAS-Manifest* within the main section of this Git repository
