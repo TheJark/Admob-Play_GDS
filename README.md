@@ -4,7 +4,8 @@
 The below documentation demonstrates how to retrieve data from the AdMob API using a custom Google Data Studio (GDS) connection, built with Google Apps Script (GAS), connect to Play Console data using the Google BigQuery (GBQ) Data Transfer Service, generate extracts of these feeds, and generate realtime App acquisition, retention, and monetization performance dashboards in GDS.
 
 <h2> Building the AdMob API Connection </h2>
-  1. Create a new project in GAS (https://script.google.com/home)
+  
+1. Create a new project in GAS (https://script.google.com/home)
   2. Clear the code from *Code.gs*
   3. Enter the code from *AdMob-GAS-x* within the main section of this Git repository
   4. Navigate to your Google Cloud Platform (GCP) instance (https://console.cloud.google.com/home/)
