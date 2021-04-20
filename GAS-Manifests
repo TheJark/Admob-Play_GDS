@@ -1,0 +1,81 @@
+/**
+* MANIFEST FOR WEEKLY CONNECTION
+*/
+
+{
+  "timeZone": "America/Mexico_City",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "OAuth2",
+        "libraryId": "1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF",
+        "version": "40"
+      }
+    ]
+  },
+  "webapp": {
+    "access": "MYSELF",
+    "executeAs": "USER_ACCESSING"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/admob.readonly",
+    "https://www.googleapis.com/auth/admob.report",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
+  "runtimeVersion": "V8",
+  "dataStudio": {
+    "name": "Admob Weekly Connector",
+    "logoUrl": "https://raw.githubusercontent.com/TheJark/admob/main/JarkVision.png",
+    "company": "JarkVision",
+    "companyUrl": "https://developers.google.com/datastudio/",
+    "addonUrl": "https://github.com/TheJark",
+    "supportUrl": "https://github.com/google/datastudio/issues",
+    "description": "Connect to your Admob account and retrieve network reports",
+    "sources": [
+      "JarkVision"
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER"
+}
+
+/** 
+* MANIFEST FOR DAILY CONNECTION
+*/
+
+{
+  "timeZone": "America/Los_Angeles",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "OAuth2",
+        "libraryId": "1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF",
+        "version": "40"
+      }
+    ]
+  },
+  "webapp": {
+    "access": "MYSELF",
+    "executeAs": "USER_ACCESSING"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/admob.readonly",
+    "https://www.googleapis.com/auth/admob.report",
+    "https://www.googleapis.com/auth/userinfo.email"
+  ],
+  "runtimeVersion": "V8",
+  "dataStudio": {
+    "name": "Admob Connector",
+    "logoUrl": "https://raw.githubusercontent.com/TheJark/admob/main/JarkVision.png",
+    "company": "JarkVision",
+    "companyUrl": "https://developers.google.com/datastudio/",
+    "addonUrl": "https://github.com/TheJark",
+    "supportUrl": "https://github.com/google/datastudio/issues",
+    "description": "Connect to your Admob account and retrieve network reports",
+    "sources": [
+      "JarkVision"
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER"
+}
