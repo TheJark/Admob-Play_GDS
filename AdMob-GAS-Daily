@@ -1,0 +1,268 @@
+/** 
+* FOR USE WITH A DAILY LEVEL NETWORK REPORT FROM ADMOB API
+*/
+
+var cc = DataStudioApp.createCommunityConnector();
+
+function getAuthType() {
+  var AuthTypes = cc.AuthType;
+  return cc
+    .newAuthTypeResponse()
+    .setAuthType(AuthTypes.OAUTH2)
+    .build();
+}
+
+/** 
+* New API Keys will need to be generated for proper authorization
+*/
+
+var CLIENT_ID = '';
+var CLIENT_SECRET = '';
+
+/**
+ * Authorizes and makes a request to the Admob API.
+ */
+function run() {
+  var service = getAdmobService();
+  if (service.hasAccess()) {
+    var url = 'https://www.googleapis.com/auth/admob.readonly';
+    var response = UrlFetchApp.fetch(url, {
+      headers: {
+        Authorization: 'Bearer ' + service.getAccessToken()
+      }
+    });
+    var result = JSON.parse(response.getContentText());
+    Logger.log(JSON.stringify(result, null, 2));
+  } else {
+    var authorizationUrl = service.getAuthorizationUrl();
+    Logger.log('Open the following URL and re-run the script: %s',
+        authorizationUrl);
+  }
+}
+
+/**
+ * Reset the authorization state, so that it can be re-tested.
+ */
+function reset() {
+  getAdmobService().reset();
+}
+
+function isAdminUser() {
+  return true;
+}
+
+/**
+ * Configures the service.
+ */
+function getAdmobService() {
+  return OAuth2.createService('Admob')
+      // Set the endpoint URLs.
+      .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/v2/auth')
+      .setTokenUrl('https://oauth2.googleapis.com/token')
+
+      // Set the client ID and secret.
+      .setClientId(CLIENT_ID)
+      .setClientSecret(CLIENT_SECRET)
+
+      // Set the name of the callback function that should be invoked to
+      // complete the OAuth flow.
+      .setCallbackFunction('authCallback')
+
+      // Set the property store where authorized tokens should be persisted.
+      .setPropertyStore(PropertiesService.getUserProperties())
+
+      // Set the scope and additional Google-specific parameters.
+      .setScope([
+        "https://www.googleapis.com/auth/admob.readonly",
+        "https://www.googleapis.com/auth/admob.report",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/script.external_request"])
+      .setParam('access_type', 'offline')
+      .setParam('approval_prompt', 'force')
+      //.setParam('login_hint', Session.getActiveUser().getEmail());
+}
+
+/**
+ * Handles the OAuth callback.
+ */
+function authCallback(request) {
+  var service = getAdmobService();
+  var authorized = service.handleCallback(request);
+  if (authorized) {
+    return HtmlService.createHtmlOutput('Success!');
+  } else {
+    return HtmlService.createHtmlOutput('Denied.');
+  }
+}
+
+/**
+ * Returns true if the auth service has access.
+ * @return {boolean} True if the auth service has access.
+ */
+function isAuthValid() {
+  return getAdmobService().hasAccess();
+}
+
+/**
+ * Part of OAuth2 flow.
+ */
+function get3PAuthorizationUrls() {
+  var service = getAdmobService();
+  if (service == null) {
+    return '';
+  }
+  return service.getAuthorizationUrl();
+}
+
+/**
+ * Logs the redict URI to register in the Google Developers Console.
+ */
+function logRedirectUri() {
+  var service = getAdmobService();
+  Logger.log(service.getRedirectUri());
+}
+
+function getConfig(request) {
+  var config = cc.getConfig();
+  
+  config.newInfo()
+    .setId('instructions')
+    .setText('Enter publisher ID and report type to fetch reporting.');
+  
+  config.newTextInput()
+    .setId('pid')
+    .setName('Enter your Admob Publisher ID')
+    .setHelpText('Your Publisher ID can be found in your Admob console under Settings > Account Information')
+    .setPlaceholder('pub-123456789');
+  
+  config.newTextInput()
+    .setId('range')
+    .setName('Enter the number of days for this report')
+    .setHelpText("Enter the number of days as an integer")
+    .setPlaceholder('30');
+  
+  var networkreport = config.newOptionBuilder()
+    .setLabel('Network Report')
+    .setValue('networkReport:generate');
+
+  var mediationreport = config.newOptionBuilder()
+    .setLabel('Mediation Report')
+    .setValue('mediationReport:generate');
+  
+  config.newSelectSingle()
+    .setId('reportype')
+    .setName('Choose your report type')
+    .setHelpText('Choose which type of report you\'d like to connect to')
+    .addOption(networkreport)
+    .addOption(mediationreport);
+  
+  config.setDateRangeRequired(true);
+  
+  return config.build();
+}
+
+function getFields(request) {
+  var fields = cc.getFields();
+  var types = cc.FieldType;
+  var aggregations = cc.AggregationType;
+  var FIELDS = [
+    {id: 'DATE' , name: 'Date', type: types.YEAR_MONTH_DAY},
+    {id: 'COUNTRY' , name: 'Country', type: types.COUNTRY},
+    {id: 'ESTIMATED_EARNINGS' , name: 'Estimated Earnings', type: types.CURRENCY_EUR},
+    {id: 'CLICKS' , name: 'Clicks', type: types.NUMBER},
+    {id: 'IMPRESSIONS' , name: 'Impressions', type: types.NUMBER},
+    {id: 'MATCHED_REQUESTS' , name: 'Matched Requests', type: types.NUMBER}
+  ];
+  
+  FIELDS.forEach(function(each) {
+    fields.newDimension()
+      .setId(each.id)
+      .setName(each.name)
+      .setType(each.type);
+  });
+
+  return fields;
+}
+
+function getSchema(request) {
+  var fields = getFields(request).build();
+  return { schema: fields };
+}
+
+function responseToRows(requestedFields, response) {
+  // Transform parsed data and filter for requested fields
+  var fields = requestedFields.asArray();
+  return response.map(function(networkreport) {
+    var row = [];
+    fields.forEach(function (field) {
+      switch (field.getId()) {
+        case 'DATE':
+          return row.push(networkreport.row.dimensionValues.DATE.value); 
+        case 'COUNTRY':
+          return row.push(networkreport.row.dimensionValues.COUNTRY.value);
+        case 'ESTIMATED_EARNINGS':
+          return row.push(networkreport.row.metricValues.ESTIMATED_EARNINGS.microsValue);
+        case 'CLICKS':
+          return row.push(networkreport.row.metricValues.CLICKS.integerValue);
+        case 'IMPRESSIONS':
+          return row.push(networkreport.row.metricValues.IMPRESSIONS.integerValue);
+        case 'MATCHED_REQUESTS':
+          return row.push(networkreport.row.metricValues.MATCHED_REQUESTS.integerValue);
+        default:
+          return row.push('');
+      }
+    });
+    return { values: row };
+  });
+}
+
+function getData(request) {
+  var requestedFieldIds = request.fields.map(function(field) {
+    return field.name;
+  });
+  var requestedFields = getFields().forIds(requestedFieldIds);
+  var service = getAdmobService()
+  // Fetch and parse data from API
+  var url = [
+    'https://admob.googleapis.com/v1/accounts/',
+    request.configParams.pid,
+    '/',
+    request.configParams.reportype
+  ].join('');
+  
+  var reportspec = {"reportSpec": {
+  'dateRange': {
+    'startDate': {'year': Utilities.formatDate(new Date(new Date().getTime() - (86400000*request.configParams.range)), "GMT+1", "yyyy"), 'month': Utilities.formatDate(new Date(new Date().getTime() - (86400000*request.configParams.range)), "GMT+1", "MM"), 'day': Utilities.formatDate(new Date(new Date().getTime() - (86400000*request.configParams.range)), "GMT+1", "dd")},
+    'endDate': {'year': Utilities.formatDate(new Date(), "GMT+1", "yyyy"), 'month': Utilities.formatDate(new Date(), "GMT+1", "MM"), 'day': Utilities.formatDate(new Date(), "GMT+1", "dd")-1}
+  },
+  'dimensions': ['DATE', 'COUNTRY'],
+  'metrics': ['CLICKS', 'ESTIMATED_EARNINGS', 'IMPRESSIONS', 'MATCHED_REQUESTS'],
+
+  'localizationSettings': {
+    'currencyCode': 'EUR',
+    'languageCode': 'en-US'
+   }
+    
+   }
+                   } 
+  
+  var options = {
+    headers: {
+        Authorization: 'Bearer ' + service.getAccessToken()
+      },
+    "method": 'post',
+    "contentType": 'application/json', 
+    "payload": JSON.stringify(reportspec)
+  };
+  var response = UrlFetchApp.fetch(url, options);
+  Logger.log(response.getResponseCode());
+  var json = response.getContentText();
+  var parsedResponse = JSON.parse(json).slice(1,-1);
+  var parsed2 = JSON.stringify(parsedResponse);
+  var rows = responseToRows(requestedFields, parsedResponse);
+
+  return {
+    schema: requestedFields.build(),
+    rows: rows
+  };
+}
