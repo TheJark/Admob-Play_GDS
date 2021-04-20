@@ -1,0 +1,67 @@
+##Daily View##
+
+SELECT 
+    ci.Date, 
+    ci.Country, 
+    SUM(ci.Daily_User_Installs) as dui,
+    SUM(ci.Daily_User_Uninstalls) as duu,
+    SUM(ci.Active_Device_Installs) as adi,
+    SUM(ci.Install_events) as ie,
+    SUM(ci.Uninstall_events) as ue,
+    SUM(cs.Item_Price) as apprev,
+    SUM(cs.trans_cnt) as trans_cnt
+FROM `white-option-306410.notebloc_play_data.Installs_country_nb` as ci
+FULL JOIN 
+(SELECT 
+    order_charged_date,
+    Country_of_Buyer,
+    SUM(Charged_Amount*b.Conversion) as Item_Price,
+    COUNT(a.Order_Number) as trans_cnt
+FROM `white-option-306410.notebloc_play_data.Sales_nb` as a
+LEFT JOIN `white-option-306410.notebloc_play_data.currencyconverter` as b
+    ON a.Currency_of_Sale = b.Currency AND a.Order_Charged_Date = b.Date AND a.Country_of_Buyer = b.Country
+GROUP BY order_charged_date, Country_of_Buyer, Conversion) as cs
+ON ci.Date = cs.order_charged_date AND ci.Country = cs.Country_of_Buyer
+WHERE ci.Date BETWEEN DATE_SUB(current_date(), INTERVAL 30 DAY) AND current_date()
+GROUP BY ci.date, ci.Country
+
+
+
+##Weekly View##
+
+SELECT 
+    DATE_TRUNC(cie.Date, WEEK(SUNDAY)) as week,
+    cie.Country,
+    SUM(cie.dui) as dui,
+    SUM(cie.duu) as duu,
+    SUM(cie.adi)/7 as adi,
+    SUM(cie.ie) as ie,
+    SUM(cie.ue) as ue,
+    SUM(cie.apprev) as apprev,
+    SUM(cie.trans_cnt ) as trans_cnt
+FROM
+(SELECT 
+    ci.Date, 
+    ci.Country, 
+    SUM(ci.Daily_User_Installs) as dui,
+    SUM(ci.Daily_User_Uninstalls) as duu,
+    SUM(ci.Active_Device_Installs) as adi,
+    SUM(ci.Install_events) as ie,
+    SUM(ci.Uninstall_events) as ue,
+    SUM(cs.Item_Price) as apprev,
+    SUM(cs.trans_cnt) as trans_cnt
+FROM `white-option-306410.notebloc_play_data.Installs_country_nb` as ci
+FULL JOIN 
+(SELECT 
+    order_charged_date,
+    Country_of_Buyer,
+    SUM(Charged_Amount*b.Conversion) as Item_Price,
+    COUNT(a.Order_Number) as trans_cnt
+FROM `white-option-306410.notebloc_play_data.Sales_nb` as a
+LEFT JOIN `white-option-306410.notebloc_play_data.currencyconverter` as b
+    ON a.Currency_of_Sale = b.Currency AND a.Order_Charged_Date = b.Date AND a.Country_of_Buyer = b.Country
+GROUP BY order_charged_date, Country_of_Buyer, Conversion) as cs
+ON ci.Date = cs.order_charged_date AND ci.Country = cs.Country_of_Buyer
+WHERE ci.Date BETWEEN DATE_SUB(current_date(), INTERVAL 366 DAY) AND current_date()
+GROUP BY ci.date, ci.Country) as cie
+GROUP BY Week, Country
