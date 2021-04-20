@@ -5,7 +5,7 @@ The below documentation demonstrates how to retrieve data from the AdMob API usi
 
 <h2> Building the AdMob API Connection </h2>
   
-1. Create a new project in GAS (https://script.google.com/home)
+  1. Create a new project in GAS (https://script.google.com/home)
   2. Clear the code from *Code.gs*
   3. Enter the code from *AdMob-GAS-x* within the main section of this Git repository
   4. Navigate to your Google Cloud Platform (GCP) instance (https://console.cloud.google.com/home/)
@@ -20,6 +20,7 @@ The below documentation demonstrates how to retrieve data from the AdMob API usi
   11. Once this is done navigate to the *publish* menu within your GAS project and select *deploy from manifest*
 
 <h2> Configuring the BigQuery Data Transfer Service </h2>
+  
   1. Navigate to your GCP instance (https://console.cloud.google.com/home/)
   2. Search for the BigQuery, BigQuery Connection, and BigQuery Data Transfer Service APIs and enable them from the marketplace
   3. Navigate to the BigQuery console by searching BigQuery in the search bar
@@ -30,6 +31,7 @@ The below documentation demonstrates how to retrieve data from the AdMob API usi
   8. To create views of installs and app revenue by Country, create a new view using the code *BQ-Installs-Earnings* from the main section of this Git repository
 
 <h2> Connecting to the AdMob GAS Custom Connector in GDS </h2>
+  
   1. Navigate to GDS (https://datastudio.google.com/)
   2. Select *Data Sources* \> *Create* \> *Data Source*
   3. Choose the custom connector built in GAS under Partner Connectors and configure using the appropriate AdMob Publisher ID and date range
@@ -37,6 +39,7 @@ The below documentation demonstrates how to retrieve data from the AdMob API usi
 
 
 <h2> Connecting to BigQuery Play Console Data in GDS </h2>
+  
   1. Navigate to GDS (https://datastudio.google.com/)
   2. Select *Data Sources* \> *Create* \> *Data Source*
   3. Choose the BigQuery connection within the Google Connectors section
