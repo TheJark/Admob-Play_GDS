@@ -13,7 +13,7 @@ function getAuthType() {
 }
 
 /** 
-* New API Keys will need to be generated for proper authorization
+* New API Keys will need to be generated in GCP for proper authorization
 */
 
 var CLIENT_ID = '';
